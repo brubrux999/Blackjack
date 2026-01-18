@@ -1,3 +1,4 @@
+from ast import Global
 from random import shuffle
 
 # Hands to display
@@ -7,8 +8,11 @@ dealer_hand = []
 phand = []
 dhand = []
 # Scores
-player_score = []
-dealer_score = []
+player_score = 0
+dealer_score = 0
+
+# Victory counter
+player_wins = 0
 
 def dealing_cards():
     shuffle(deck)
@@ -25,22 +29,22 @@ def dealing_cards():
     dealer_hand.extend(deck[0:2])
     del deck[0:2]
 
-    player_score.append(hand_value(player_hand, phand, player_score)) # Compute the hand value
-    dealer_score.append(hand_value([dealer_hand[0]], dhand, dealer_score))
+    global player_score, dealer_score
+    player_score = hand_value(player_hand, phand, player_score) # Compute the hand value
+    dealer_score = hand_value([dealer_hand[0]], dhand, dealer_score)
 
     return
 
 def take_a_card(hand, pd_hand, score):
     hand.append(deck[0]) # Add a card to (player/dealer) hand
     deck.pop(0) # Remove that card from deck
-    hand_value(hand, pd_hand, score) # Recompute the hand value
+    score = hand_value(hand, pd_hand, score) # Recompute the hand value
 
-    return 
+    return score
 
 def hand_value(hand, pd_hand, score):
     As = 0 # Card counter "As"
     pd_hand.clear()
-    score.clear()
 
     for card in hand:
         if card == "As":
@@ -54,36 +58,43 @@ def hand_value(hand, pd_hand, score):
         else:
             pd_hand.append(1)
 
-    return score.append(sum(pd_hand))
+    score = sum(pd_hand)
+    
+    return score
 
-def show_hands(dealer_hand, dealer_score):
-        return f"\n>> Dealer hand: {dealer_hand}, the score is {dealer_score[0]}\n" \
-                f">> Your hand: {player_hand}, the score is {player_score[0]}\n"
+def show_hands(dealer_hand):
+        return f"\n>> Dealer hand: {dealer_hand}, the score is {dealer_score}\n" \
+                f">> Your hand: {player_hand}, the score is {player_score}\n"
 
-def compare_scores(player_score, dealer_score):
-    if player_score[0] > dealer_score[0]:
+def compare_scores():
+    global player_wins
+    if player_score > dealer_score:
+        player_wins += 1
         return "The player wins\n"
-    elif dealer_score[0] > player_score[0]:
+    elif dealer_score > player_score:
         return "The dealer wins\n"
     else:
         return "It's a push\n"
 
 def play():
+    global player_score, dealer_score, player_wins
     blackjack = False
+
     print("\nThe dealer deals the cards...")
     dealing_cards()
-    print(show_hands([dealer_hand[0], "?"], dealer_score))
+    print(show_hands([dealer_hand[0], "?"]))
     
     # Evaluate if there is blackjack
     hand_value(dealer_hand, dhand, dealer_score)
-    if dealer_score[0] == 21:
+    if dealer_score == 21:
         blackjack = True
         return print(
             f"Dealer hand: {dealer_hand}\n"
             "The dealer gets BLACKJACK!!\n"
         )
-    elif player_score[0] == 21:
+    elif player_score == 21:
         blackjack = True
+        player_wins += 1
         return print("The player gets BLACKJACK!!\n")
     
     # Player turn
@@ -93,26 +104,27 @@ def play():
 
         if hit_stand == "h":
             print("The player hits")
-            take_a_card(player_hand, phand, player_score)
-            hand_value([dealer_hand[0]], dhand, dealer_score)
-            print(show_hands([dealer_hand[0], "?"], dealer_score))
-            if player_score[0] > 21:
+            player_score = take_a_card(player_hand, phand, player_score)
+            dealer_score = hand_value([dealer_hand[0]], dhand, dealer_score)
+            print(show_hands([dealer_hand[0], "?"]))
+            if player_score > 21:
                 return print("The player busts\n")
         # Dealer turn
         elif hit_stand == "s":
             print("Dealer reveals the hole card...")
-            hand_value(dealer_hand, dhand, dealer_score)
-            print(show_hands(dealer_hand, dealer_score))
-            while dealer_score[0] < 17:
+            dealer_score = hand_value(dealer_hand, dhand, dealer_score)
+            print(show_hands(dealer_hand))
+            while dealer_score < 17:
                 print("The dealer draws a card")
-                take_a_card(dealer_hand, dhand, dealer_score)
-                print(show_hands(dealer_hand, dealer_score))
-                if dealer_score[0] > 21:
+                dealer_score = take_a_card(dealer_hand, dhand, dealer_score)
+                print(show_hands(dealer_hand))
+                if dealer_score > 21:
+                    player_wins += 1
                     return print("The dealer busts\n")
         else:
             print("Invalid input!\n")
 
-    return print(compare_scores(player_score, dealer_score)) # Victory conditions (if there was no bust)
+    return print(compare_scores()) # Victory conditions (if there was no bust)
 
 # Menu game
 def menu():
@@ -122,7 +134,8 @@ def menu():
         "============================\n"
 
         "\n1) Play\n"
-        "2) Quit\n"
+        "2) View wins\n" # Future leaderboard feature
+        "3) Quit\n"
     )
 
 menu()
@@ -157,8 +170,8 @@ while option != 1 or option != 2 or option != 3:
             else:
                 print("Invalid input!\n")
     elif option == 2:
-        break
+        print(f"\n>> Total player wins: {player_wins}\n")
     elif option == 3:
-        print("Seccion de prueba")
+        break
     else:
         print("Invalid input!\n")
