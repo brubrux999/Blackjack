@@ -1,4 +1,3 @@
-from ast import Global
 from random import shuffle
 
 class Player:
@@ -74,7 +73,6 @@ def play():
 
     print("\nThe dealer deals the cards...")
     dealing_cards()
-    print(len(deck), "<<<")
     print(show_some_cards())
 
     # Evaluate if there is blackjack
@@ -98,7 +96,6 @@ def play():
         if hit_stand == "h":
             print("The player hits")
             player1.take_a_card()
-            print(len(deck), "<<<")
             print(show_some_cards())
             if player1.score > 21:
                 return print("The player busts\n")
@@ -109,7 +106,6 @@ def play():
             while dealer.score < 17:
                 print("The dealer draws a card")
                 dealer.take_a_card()
-                print(len(deck), "<<<")
                 print(show_hole_cards())
                 if dealer.score > 21:
                     player1.wins += 1
