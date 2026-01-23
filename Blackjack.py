@@ -16,6 +16,8 @@ class Player:
         for card in hand:
             if card == "As":
                 As += 1
+            elif card in ["J", "Q", "K"]:
+                self.num_hand.append(10)
             else:
                 self.num_hand.append(card)
         
@@ -28,28 +30,37 @@ class Player:
         self.score = sum(self.num_hand)
         return self.score
 
-    def take_a_card(self):
-        self.hand.append(deck[0]) # Add a card to player hand
-        deck.pop(0) # Remove that card from deck
+    def take_a_card(self, deck):
+        self.hand.append(deck.cards[0]) # Add a card to player hand
+        deck.cards.pop(0) # Remove that card from deck
         self.hand_value() # Recompute the hand value
 
-def dealing_cards():
-    shuffle(deck)
+class Deck():
 
-    # Hands starts empty
-    player1.hand.clear()
-    dealer.hand.clear()
-    player1.num_hand.clear()
-    dealer.num_hand.clear()
+    def __init__(self):
+        self.cards = [
+            "As", 2, 3, 4, 5, 6, 7, 8, 9, 10, "J", "Q", "K",
+            "As", 2, 3, 4, 5, 6, 7, 8, 9, 10, "J", "Q", "K",
+            "As", 2, 3, 4, 5, 6, 7, 8, 9, 10, "J", "Q", "K",
+            "As", 2, 3, 4, 5, 6, 7, 8, 9, 10, "J", "Q", "K",
+        ]
 
-    player1.hand.extend(deck[0:2]) # Take the first two cards
-    del deck[0:2] # Remove those cards taken from deck
+    def dealing_cards(self):
+        shuffle(self.cards) # Shuffle the deck
 
-    dealer.hand.extend(deck[0:2])
-    del deck[0:2]
+        # Hands starts empty
+        player1.hand.clear()
+        dealer.hand.clear()
+        player1.num_hand.clear()
+        dealer.num_hand.clear()
 
-    player1.hand_value() # Compute the hand value
-    return
+        player1.hand.extend(self.cards[0:2]) # Take the first two cards
+        del self.cards[0:2]      # Remove them from the deck
+
+        dealer.hand.extend(self.cards[0:2])
+        del self.cards[0:2]
+
+        player1.hand_value() # Compute the player hand value
 
 def show_some_cards():
         return f"\n>> Dealer hand: [{dealer.hand[0]}, ?], the score is {dealer.hand_value(dealer.hand[0:])}\n" \
@@ -72,7 +83,7 @@ def play():
     blackjack = False
 
     print("\nThe dealer deals the cards...")
-    dealing_cards()
+    deck.dealing_cards()
     print(show_some_cards())
 
     # Evaluate if there is blackjack
@@ -95,7 +106,7 @@ def play():
 
         if hit_stand == "h":
             print("The player hits")
-            player1.take_a_card()
+            player1.take_a_card(deck)
             print(show_some_cards())
             if player1.score > 21:
                 return print("The player busts\n")
@@ -105,7 +116,7 @@ def play():
             print(show_hole_cards())
             while dealer.score < 17:
                 print("The dealer draws a card")
-                dealer.take_a_card()
+                dealer.take_a_card(deck)
                 print(show_hole_cards())
                 if dealer.score > 21:
                     player1.wins += 1
@@ -137,23 +148,13 @@ while option != 1 or option != 2 or option != 3:
     option = int(input("Select an option: "))
     if option == 1:
         print("\nGood luck!")
-        deck = [
-            "As", 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10,
-            "As", 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10,
-            "As", 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10,
-            "As", 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10,
-        ] # Deck of cards
+        deck = Deck()
         play()
         play_again = "y"
         while play_again != "n":
             play_again = input("Do you wanna play again(y/n)? ")
             if play_again == "y":
-                deck = [
-                    "As", 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10,
-                    "As", 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10,
-                    "As", 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10,
-                    "As", 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10,
-                ] # Reset the deck
+                deck = Deck()
                 play()
             elif play_again == "n":
                 print("Thanks for playing!!\n")
