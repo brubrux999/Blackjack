@@ -127,15 +127,32 @@ def menu():
         "3) Quit\n"
     )
 
+def players_to_play():
+    num_players = 0
+    while num_players < 1 or num_players > 4:
+        num_players = int(input("Enter number of players (1-4): "))
+        if num_players < 1 or num_players > 4:
+            print("Invalid number of players!\n")
+    return num_players
+
+def players_class():
+    players = []
+    num_players = players_to_play()
+    for i in range(num_players):
+        name = input(f"Enter name for Player {i+1}: ")
+        players.append(Player(name))
+    return players
+
 menu()
 
-player1 = Player("Bruno")
+
 dealer = Player("Dealer")
 
 option = 0
 while option != 1 or option != 2 or option != 3:
     option = int(input("Select an option: "))
     if option == 1:
+        player1 = players_class()[0]  # Currently only supports one player
         print("\nGood luck!")
         deck = [
             "As", 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10,
