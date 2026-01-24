@@ -57,7 +57,7 @@ python Blackjack.py
 - ~~Add blackjack rule.~~
 - Betting system (Handle bets and player balance).
 - Add insurance, duplicate and split rules.
-- Support multiple players.
+- ~~Support multiple players.~~
 - Leaderboard.
 - Add a graphical interface with Tkinter or Pygame.
 
