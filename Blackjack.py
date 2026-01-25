@@ -107,11 +107,11 @@ def play():
                 hit_stand = input(f"Hit or Stand (h/s)? ")
                 if hit_stand == "h":
                     print(f"{player.name} hits")
-                    player.take_a_card()
+                    player.take_a_card(deck)
                     player.show_player_hand()
                     if player.score > 21:
                         player.active = False
-                        print(f"{player.name} busts\n")
+                        print(f"{player.name} busts")
     
     if all(not player.active for player in players):
         return print("All players busted, dealer wins\n")
@@ -122,7 +122,7 @@ def play():
         print(f"\n>> Dealer hand: {dealer.hand}, the score is {dealer.hand_value()}\n")
         while dealer.score < 17:
             print("The dealer draws a card")
-            dealer.take_a_card()
+            dealer.take_a_card(deck)
             print(f"\n>> Dealer hand: {dealer.hand}, the score is {dealer.hand_value()}\n")
             if dealer.score > 21:
                 for player in players:
@@ -186,7 +186,7 @@ while option != 1 or option != 2 or option != 3:
                 print("Invalid input!\n")
     elif option == 2:
         for player in players:
-            print(f"\n>> Total {player.name} wins: {player.wins}\n")
+            print(f">> Total {player.name} wins: {player.wins}")
     elif option == 3:
         break
     else:
