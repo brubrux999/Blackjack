@@ -1,0 +1,39 @@
+class Player:
+    def __init__(self, name):
+        self.name = name
+        self.hand = []
+        self.num_hand = [] # Numeric representation of the hand
+        self.score = 0
+        self.blackjack = False # To know if the player has blackjack
+        self.active = True # To know if the player is still in the game
+        self.wins = 0 # Total wins of the player
+
+    def hand_value(self, hand=None):
+        As = 0 # Card counter "As"
+        hand = [self.hand[0]] if hand is not None else self.hand
+        self.num_hand.clear()
+
+        for card in hand:
+            if card == "As":
+                As += 1
+            elif card in ["J", "Q", "K"]:
+                self.num_hand.append(10)
+            else:
+                self.num_hand.append(card)
+        
+        for x in range(As): # 11 or 1 value for "As" (if there is)
+            if sum(self.num_hand) + 11 <= 21:
+                self.num_hand.append(11)
+            else:
+                self.num_hand.append(1)
+
+        self.score = sum(self.num_hand)
+        return self.score
+
+    def take_a_card(self, deck):
+        self.hand.append(deck.cards[0]) # Add a card to player hand
+        deck.cards.pop(0) # Remove that card from deck
+        self.hand_value() # Recompute the hand value
+
+    def show_player_hand(self):
+        print(f">> {self.name} hand: {self.hand}, the score is {self.score}\n")

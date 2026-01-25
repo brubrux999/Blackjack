@@ -4,7 +4,7 @@ A standar command-line Blackjack game implemented in Python.\
 Play against the computer following the rules of soft 17.\
 This project is part of my learning procces in Python, Git/GitHub and Markdown.
 
-<img src="Blackjack.png" width="350" height="680">
+<img src="images/Blackjack.png" width="350" height="680">
 
 ## What I learned
 
@@ -17,7 +17,7 @@ This project is part of my learning procces in Python, Git/GitHub and Markdown.
 ## Features
 
 - Standard Blackjack game with soft 17 rules.
-- One player plays against the computer.
+- 1-4 players plays against the computer.
 - Automatic card dealing and scoring.
 - Simple text-based interface.
 
@@ -35,12 +35,12 @@ cd Blackjack
 
 3. Run the game:
 ```bash
-python Blackjack.py
+python src/main.py
 ```
 
 ## How to play
 
-- Select an option from the menu.
+- Select an option from the menu, if you play write how many players are going to play and their names.
 - Choose whether to Hit (h) or Stand (s).
 - Try to reach 21 points or get as close as possible without going over.
 - The computer acts as the dealer following soft 17 rules.
