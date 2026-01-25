@@ -30,10 +30,13 @@ class Player:
         self.score = sum(self.num_hand)
         return self.score
 
-    def take_a_card(self, deck):
-        self.hand.append(deck.cards[0]) # Add a card to player hand
-        deck.cards.pop(0) # Remove that card from deck
-        self.hand_value() # Recompute the hand value
+    def take_cards(self, cards):
+        if isinstance(cards, list):
+            self.hand.extend(cards)
+            self.hand_value()
+        else:
+            self.hand.append(cards) # Add a card to player hand
+            self.hand_value() # Recompute the hand value
 
     def show_player_hand(self):
         print(f">> {self.name} hand: {self.hand}, the score is {self.score}\n")
