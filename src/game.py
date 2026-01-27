@@ -1,14 +1,24 @@
 from random import shuffle
-from player import Player
+from player import Player , Dealer
 from deck import Deck
 from menu import Menu
 
 class BlackjackGame:
     def __init__(self):
         self.players = []
-        self.dealer = Player("Dealer")
+        self.dealer = Dealer()
         self.deck = Deck()
         self.menu = Menu()
+
+    def add_player(self):
+        num_players = 0
+        while num_players < 1 or num_players > 4:
+            num_players = int(input("Enter number of players (1-4): "))
+            if num_players < 1 or num_players > 4:
+                print("Invalid number of players!\n")
+        for i in range(num_players):
+            name = input(f"Enter name for Player {i+1}: ")
+            self.players.append(Player(name))
     
     def dealing_cards(self):
         self.deck.create_suffle_deck # Reset the deck
@@ -25,22 +35,6 @@ class BlackjackGame:
             player.num_hand.clear()
             # Take two cards
             player.take_cards(self.deck.draw(2))
-    
-    def players_to_play(self):
-        num_players = 0
-        while num_players < 1 or num_players > 4:
-            num_players = int(input("Enter number of players (1-4): "))
-            if num_players < 1 or num_players > 4:
-                print("Invalid number of players!\n")
-        return num_players
-
-    def players_class(self):
-        self.players
-        num_players = self.players_to_play()
-        for i in range(num_players):
-            name = input(f"Enter name for Player {i+1}: ")
-            self.players.append(Player(name))
-        return self.players
 
     def compare_scores(self):
         for player in self.players:
@@ -50,8 +44,8 @@ class BlackjackGame:
                     print(f"{player.name} wins\n")
                 elif self.dealer.score > player.score:
                     print(f"{player.name} loses\n")
-            else:
-                print(f"That's a push for {player.name}\n")
+                else:
+                    print(f"That's a push for {player.name}\n")
     
     def play(self):
         print("\nThe dealer deals the cards...")
@@ -75,37 +69,16 @@ class BlackjackGame:
                     player.wins += 1
                     print(f"\n{player.name} gets BLACKJACK!!\n")
 
-        # Player turns
+        # Players turn
         for player in self.players:
-            if player.blackjack == False:
-                hit_stand = ""
-                print(f"\n{player.name}'s turn:")
-                while hit_stand != "s" and player.active:
-                    hit_stand = input(f"Hit or Stand (h/s)? ")
-                    if hit_stand == "h":
-                        print(f"{player.name} hits")
-                        player.take_cards(self.deck.draw(1))
-                        player.show_player_hand()
-                        if player.score > 21:
-                            player.active = False
-                            print(f"{player.name} busts")
+            player.play_turn(self.deck)
         
         if all(not player.active for player in self.players):
             return print("All players busted, dealer wins\n")
                     
         # Dealer turn
         if any(player.active for player in self.players):
-            print("Dealer reveals the hole card...")
-            print(f"\n>> Dealer hand: {self.dealer.hand}, the score is {self.dealer.hand_value()}\n")
-            while self.dealer.score < 17:
-                print("The dealer draws a card")
-                self.dealer.take_cards(self.deck.draw(1))
-                print(f"\n>> Dealer hand: {self.dealer.hand}, the score is {self.dealer.hand_value()}\n")
-                if self.dealer.score > 21:
-                    for player in self.players:
-                        if player.active:
-                            player.wins += 1
-                    return print("The dealer busts\n")
+            self.dealer.play_turn(self.deck)
 
         self.compare_scores() # Victory conditions (if there was no bust)
 
@@ -115,7 +88,7 @@ class BlackjackGame:
         while option != 1 or option != 2 or option != 3:
             option = int(input("Select an option: "))
             if option == 1:
-                self.players = self.players_class()
+                self.add_player()
                 print("\nGood luck!")
                 self.play()
                 play_again = "y"

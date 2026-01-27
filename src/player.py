@@ -38,5 +38,36 @@ class Player:
             self.hand.append(cards) # Add a card to player hand
             self.hand_value() # Recompute the hand value
 
+    def play_turn(self, deck):
+        if self.blackjack == False:
+            hit_stand = ""
+            print(f"\n{self.name}'s turn:")
+            while hit_stand != "s" and self.active:
+                hit_stand = input(f"Hit or Stand (h/s)? ")
+                if hit_stand == "h":
+                    print(f"{self.name} hits")
+                    self.take_cards(deck.draw(1))
+                    self.show_player_hand()
+                    if self.score > 21:
+                        self.active = False
+                        print(f"{self.name} busts")
+
     def show_player_hand(self):
         print(f">> {self.name} hand: {self.hand}, the score is {self.score}\n")
+
+class Dealer(Player):
+    def __init__(self):
+        super().__init__("Dealer")
+
+    def play_turn(self, deck):
+        print("Dealer reveals the hole card...")
+        print(f"\n>> Dealer hand: {self.hand}, the score is {self.hand_value()}\n")
+        while self.score < 17:
+            print("The dealer draws a card")
+            self.take_cards(deck.draw(1))
+            print(f"\n>> Dealer hand: {self.hand}, the score is {self.hand_value()}\n")
+            if self.score > 21:
+                for player in self.players:
+                    if player.active:
+                        player.wins += 1
+                return print("The dealer busts\n")
