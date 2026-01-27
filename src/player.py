@@ -8,6 +8,12 @@ class Player:
         self.active = True # To know if the player is still in the game
         self.wins = 0 # Total wins of the player
 
+    def reset_hand(self):
+        self.hand = []
+        self.num_hand = []
+        self.blackjack = False
+        self.active = True
+
     def hand_value(self, hand=None):
         As = 0 # Card counter "As"
         hand = [self.hand[0]] if hand is not None else self.hand
@@ -29,6 +35,9 @@ class Player:
 
         self.score = sum(self.num_hand)
         return self.score
+    
+    def show_hand(self):
+        print(f">> {self.name} hand: {self.hand}, the score is {self.score}")
 
     def take_cards(self, cards):
         if isinstance(cards, list):
@@ -47,13 +56,10 @@ class Player:
                 if hit_stand == "h":
                     print(f"{self.name} hits")
                     self.take_cards(deck.draw(1))
-                    self.show_player_hand()
+                    self.show_hand()
                     if self.score > 21:
                         self.active = False
                         print(f"{self.name} busts")
-
-    def show_player_hand(self):
-        print(f">> {self.name} hand: {self.hand}, the score is {self.score}\n")
 
 class Dealer(Player):
     def __init__(self):
@@ -67,7 +73,5 @@ class Dealer(Player):
             self.take_cards(deck.draw(1))
             print(f"\n>> Dealer hand: {self.hand}, the score is {self.hand_value()}\n")
             if self.score > 21:
-                for player in self.players:
-                    if player.active:
-                        player.wins += 1
+                self.active = False
                 return print("The dealer busts\n")

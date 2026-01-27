@@ -1,4 +1,3 @@
-from random import shuffle
 from player import Player , Dealer
 from deck import Deck
 from menu import Menu
@@ -9,8 +8,18 @@ class BlackjackGame:
         self.dealer = Dealer()
         self.deck = Deck()
         self.menu = Menu()
+    
+    def new_round(self):
+        self.deck = Deck()
+
+        for player in self.players:
+            player.reset_hand()
+
+        self.dealer.active = True
+        self.dealer.reset_hand()
 
     def add_player(self):
+        self.players = []
         num_players = 0
         while num_players < 1 or num_players > 4:
             num_players = int(input("Enter number of players (1-4): "))
@@ -21,23 +30,14 @@ class BlackjackGame:
             self.players.append(Player(name))
     
     def dealing_cards(self):
-        self.deck.create_suffle_deck # Reset the deck
-
-        self.dealer.hand.clear() # Clear hands before dealing first cards
-        self.dealer.num_hand.clear()
         self.dealer.take_cards(self.deck.draw(2)) # Take the first two cards
 
         for player in self.players:
-            # Reset player properties
-            player.active = True
-            player.blackjack = False
-            player.hand.clear()
-            player.num_hand.clear()
-            # Take two cards
-            player.take_cards(self.deck.draw(2))
+            player.take_cards(self.deck.draw(2)) # Each player take two cards
 
     def compare_scores(self):
         for player in self.players:
+            # for those players who are still playing
             if player.active and not player.blackjack:
                 if player.score > self.dealer.score:
                     player.wins += 1
@@ -46,13 +46,14 @@ class BlackjackGame:
                     print(f"{player.name} loses\n")
                 else:
                     print(f"That's a push for {player.name}\n")
+            player.active = False
     
     def play(self):
         print("\nThe dealer deals the cards...")
         self.dealing_cards()
         print(f"\n>> Dealer hand: [{self.dealer.hand[0]}, ?], the score is {self.dealer.hand_value(self.dealer.hand[0:])}\n")
         for player in self.players:
-            print(f">> {player.name} hand: {player.hand}, the score is {player.score}")
+            player.show_hand()
 
         # Evaluate if there is blackjack
         self.dealer.hand_value()
@@ -79,8 +80,12 @@ class BlackjackGame:
         # Dealer turn
         if any(player.active for player in self.players):
             self.dealer.play_turn(self.deck)
-
-        self.compare_scores() # Victory conditions (if there was no bust)
+            if self.dealer.active == False:
+                for player in self.players:
+                    if player.active == True:
+                        player.wins += 1
+            else:
+                self.compare_scores() # Victory conditions (if there was no bust)
 
     def start(self):
         print(self.menu.show)
@@ -89,12 +94,15 @@ class BlackjackGame:
             option = int(input("Select an option: "))
             if option == 1:
                 self.add_player()
+                self.new_round()
                 print("\nGood luck!")
                 self.play()
+
                 play_again = "y"
                 while play_again != "n":
                     play_again = input("Do you wanna play again(y/n)? ")
                     if play_again == "y":
+                        self.new_round()
                         self.play()
                     elif play_again == "n":
                         print("Thanks for playing!!\n")
