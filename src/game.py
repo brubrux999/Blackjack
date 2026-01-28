@@ -35,6 +35,29 @@ class BlackjackGame:
         for player in self.players:
             player.take_cards(self.deck.draw(2)) # Each player take two cards
 
+    def check_blackjak(self):
+        # Evaluate if dealer has blackjack
+        self.dealer.hand_value()
+        if self.dealer.score == 21:
+            print(
+                f"\nDealer hand: {self.dealer.hand}\n"
+                "The dealer gets BLACKJACK!!\n"
+            )
+            for player in self.players:
+                player.bankroll -= player.bet
+                print(f"{player.name} lose the bet")
+            return True
+        
+        # Evaluate if any player have blackjack
+        else:
+            for player in self.players:
+                if player.score == 21:
+                    player.blackjack = True
+                    player.wins += 1
+                    player.bankroll += player.bet + (player.bet * 1.5) # Payout 3:2
+                    print(f"\n{player.name} gets BLACKJACK!!\n")
+            return False
+
     def compare_scores(self):
         for player in self.players:
             # for those players who are still playing
@@ -49,26 +72,19 @@ class BlackjackGame:
             player.active = False
     
     def play(self):
-        print("\nThe dealer deals the cards...")
+        print("Place your bets:")
+        for player in self.players:
+            print(f">> {self.name} bankroll: ${self.bankroll}")
+            player.place_bet()
+        print("\nGood luck, the dealer deals the cards...")
         self.dealing_cards()
+
         print(f"\n>> Dealer hand: [{self.dealer.hand[0]}, ?], the score is {self.dealer.hand_value(self.dealer.hand[0:])}\n")
         for player in self.players:
             player.show_hand()
 
-        # Evaluate if there is blackjack
-        self.dealer.hand_value()
-        if self.dealer.score == 21:
-            return print(
-                f"\nDealer hand: {self.dealer.hand}\n"
-                "The dealer gets BLACKJACK!!\n"
-            )
-
-        elif any(player.score == 21 for player in self.players):
-            for player in self.players:
-                if player.score == 21:
-                    player.blackjack = True
-                    player.wins += 1
-                    print(f"\n{player.name} gets BLACKJACK!!\n")
+        if self.check_blackjak():
+            return # Ends the game just if dealer has blackjack
 
         # Players turn
         for player in self.players:

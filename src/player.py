@@ -1,6 +1,8 @@
 class Player:
-    def __init__(self, name):
+    def __init__(self, name, bankroll=100):
         self.name = name
+        self.bankroll = bankroll # Total chips amount
+        self.bet = 0 # Bet in each round
         self.hand = []
         self.num_hand = [] # Numeric representation of the hand
         self.score = 0
@@ -9,10 +11,32 @@ class Player:
         self.wins = 0 # Total wins of the player
 
     def reset_hand(self):
+        self.bet = 0
         self.hand = []
         self.num_hand = []
         self.blackjack = False
         self.active = True
+
+    def place_bet(self):
+        while True:
+            if self.bankroll <= 0:
+                print("Has no chips left")
+                return
+            
+            self.bet = float(input(f"Bet: $"))
+            if self.bet <= 0:
+                print("Bet must be a positive amount")
+                continue
+
+            if self.bet > self.bankroll:
+                print("You don't have enough chips")
+                continue
+
+            if self.bankroll - self.bet == 0:
+                print("ALL IN")
+
+            self.bankroll -= self.bet
+            return
 
     def hand_value(self, hand=None):
         As = 0 # Card counter "As"
@@ -75,3 +99,6 @@ class Dealer(Player):
             if self.score > 21:
                 self.active = False
                 return print("The dealer busts\n")
+            
+    # def hand_value():
+        # solo con return para así que no se guarde el valor en dealer.score
