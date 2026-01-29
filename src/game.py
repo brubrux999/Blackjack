@@ -27,24 +27,26 @@ class BlackjackGame:
                 print("Invalid number of players!\n")
         for i in range(num_players):
             name = input(f"Enter name for Player {i+1}: ")
-            self.players.append(Player(name))
+            bankroll = float(input("Buy-in amount: $"))
+            self.players.append(Player(name, bankroll))
     
     def dealing_cards(self):
+        print("\nGood luck, the dealer deals the cards...")
         self.dealer.take_cards(self.deck.draw(2)) # Take the first two cards
 
         for player in self.players:
             player.take_cards(self.deck.draw(2)) # Each player take two cards
+            player.hand_value() # Compute the value of the hand
 
     def check_blackjak(self):
         # Evaluate if dealer has blackjack
-        self.dealer.hand_value()
+        self.dealer.hand_value(1)
         if self.dealer.score == 21:
             print(
                 f"\nDealer hand: {self.dealer.hand}\n"
                 "The dealer gets BLACKJACK!!\n"
             )
             for player in self.players:
-                player.bankroll -= player.bet
                 print(f"{player.name} lose the bet")
             return True
         
@@ -78,10 +80,10 @@ class BlackjackGame:
         for player in self.players:
             print(f">> {player.name} bankroll: ${player.bankroll}")
             player.place_bet()
-        print("\nGood luck, the dealer deals the cards...")
+
         self.dealing_cards()
 
-        print(f"\n>> Dealer hand: [{self.dealer.hand[0]}, ?], the score is {self.dealer.hand_value(self.dealer.hand[0:])}\n")
+        self.dealer.show_hand(0)
         for player in self.players:
             player.show_hand()
 
@@ -110,11 +112,13 @@ class BlackjackGame:
         option = 0
         while option != 1 or option != 2 or option != 3:
             option = int(input("Select an option: "))
+            # Play option
             if option == 1:
                 self.add_player()
                 self.new_round()
                 self.play()
 
+                # Play again
                 play_again = "y"
                 while play_again != "n":
                     play_again = input("Do you wanna play again(y/n)? ")
@@ -126,9 +130,12 @@ class BlackjackGame:
                         print(self.menu.show)
                     else:
                         print("Invalid input!\n")
+
+            # View wins (future leaderboard csv)
             elif option == 2:
                 for player in self.players:
                     print(f">> Total {player.name} wins: {player.wins}")
+            # Quit
             elif option == 3:
                 break
             else:

@@ -1,5 +1,5 @@
 class Player:
-    def __init__(self, name, bankroll=100):
+    def __init__(self, name, bankroll):
         self.name = name
         self.bankroll = bankroll # Total chips amount
         self.bet = 0 # Bet in each round
@@ -38,12 +38,11 @@ class Player:
             self.bankroll -= self.bet
             return
 
-    def hand_value(self, hand=None):
+    def hand_value(self):
         As = 0 # Card counter "As"
-        hand = [self.hand[0]] if hand is not None else self.hand
         self.num_hand.clear()
 
-        for card in hand:
+        for card in self.hand:
             if card == "As":
                 As += 1
             elif card in ["J", "Q", "K"]:
@@ -58,7 +57,6 @@ class Player:
                 self.num_hand.append(1)
 
         self.score = sum(self.num_hand)
-        return self.score
     
     def show_hand(self):
         print(f">> {self.name} hand: {self.hand}, the score is {self.score}")
@@ -66,10 +64,8 @@ class Player:
     def take_cards(self, cards):
         if isinstance(cards, list):
             self.hand.extend(cards)
-            self.hand_value()
         else:
             self.hand.append(cards) # Add a card to player hand
-            self.hand_value() # Recompute the hand value
 
     def play_turn(self, deck):
         if self.blackjack == False:
@@ -80,6 +76,7 @@ class Player:
                 if hit_stand == "h":
                     print(f"{self.name} hits\n")
                     self.take_cards(deck.draw(1))
+                    self.hand_value()
                     self.show_hand()
                     if self.score > 21:
                         self.active = False
@@ -87,18 +84,54 @@ class Player:
 
 class Dealer(Player):
     def __init__(self):
-        super().__init__("Dealer")
+        super().__init__("Dealer", 0)
 
     def play_turn(self, deck):
         print("Dealer reveals the hole card...")
-        print(f"\n>> Dealer hand: {self.hand}, the score is {self.hand_value()}\n")
+        self.show_hand(1)
+        self.hand_value(1)
         while self.score < 17:
             print("The dealer draws a card")
             self.take_cards(deck.draw(1))
-            print(f">> Dealer hand: {self.hand}, the score is {self.hand_value()}\n")
+            self.hand_value(1)
+            self.show_hand(1)
             if self.score > 21:
                 self.active = False
                 return print("The dealer busts\n")
             
-    # def hand_value():
-        # solo con return para así que no se guarde el valor en dealer.score
+    def hand_value(self, option):
+        As = 0 # Card counter "As"
+        self.num_hand.clear()
+
+        # Value of the first (visible) card
+        if option == 0:
+            if self.hand[0] == "As":
+                return 11
+            elif self.hand[0] in ["J", "Q", "K"]:
+                return 10
+            else:
+                return self.hand[0]
+            
+        # Value of all cards
+        if option == 1:
+            for card in self.hand:
+                if card == "As":
+                    As += 1
+                elif card in ["J", "Q", "K"]:
+                    self.num_hand.append(10)
+                else:
+                    self.num_hand.append(card)
+        
+            for _ in range(As): # 11 or 1 value for "As" (if there is)
+                if sum(self.num_hand) + 11 <= 21:
+                    self.num_hand.append(11)
+                else:
+                    self.num_hand.append(1)
+
+            self.score = sum(self.num_hand)
+
+    def show_hand(self, option):
+        if option == 0:
+            print(f"\n>> Dealer hand: [{self.hand[0]}, ?], the score is {self.hand_value(0)}\n")
+        if option == 1:
+            print(f"\n>> Dealer hand: {self.hand}, the score is {self.score}\n")
