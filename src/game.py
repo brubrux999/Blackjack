@@ -55,7 +55,7 @@ class BlackjackGame:
                     player.blackjack = True
                     player.wins += 1
                     player.bankroll += player.bet + (player.bet * 1.5) # Payout 3:2
-                    print(f"\n{player.name} gets BLACKJACK!!\n")
+                    print(f"{player.name} gets BLACKJACK!! - pays 3:2\n")
             return False
 
     def compare_scores(self):
@@ -63,18 +63,20 @@ class BlackjackGame:
             # for those players who are still playing
             if player.active and not player.blackjack:
                 if player.score > self.dealer.score:
+                    player.bankroll += player.bet * 2 # Payout 1:1
                     player.wins += 1
-                    print(f"{player.name} wins\n")
+                    print(f"{player.name} wins even money\n")
                 elif self.dealer.score > player.score:
-                    print(f"{player.name} loses\n")
+                    print(f"{player.name} loses")
                 else:
+                    player.bankroll += player.bet
                     print(f"That's a push for {player.name}\n")
             player.active = False
     
     def play(self):
-        print("Place your bets:")
+        print("Place your bets:\n")
         for player in self.players:
-            print(f">> {self.name} bankroll: ${self.bankroll}")
+            print(f">> {player.name} bankroll: ${player.bankroll}")
             player.place_bet()
         print("\nGood luck, the dealer deals the cards...")
         self.dealing_cards()
@@ -111,7 +113,6 @@ class BlackjackGame:
             if option == 1:
                 self.add_player()
                 self.new_round()
-                print("\nGood luck!")
                 self.play()
 
                 play_again = "y"

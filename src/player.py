@@ -78,7 +78,7 @@ class Player:
             while hit_stand != "s" and self.active:
                 hit_stand = input(f"Hit or Stand (h/s)? ")
                 if hit_stand == "h":
-                    print(f"{self.name} hits")
+                    print(f"{self.name} hits\n")
                     self.take_cards(deck.draw(1))
                     self.show_hand()
                     if self.score > 21:
@@ -95,7 +95,7 @@ class Dealer(Player):
         while self.score < 17:
             print("The dealer draws a card")
             self.take_cards(deck.draw(1))
-            print(f"\n>> Dealer hand: {self.hand}, the score is {self.hand_value()}\n")
+            print(f">> Dealer hand: {self.hand}, the score is {self.hand_value()}\n")
             if self.score > 21:
                 self.active = False
                 return print("The dealer busts\n")
