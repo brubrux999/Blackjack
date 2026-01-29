@@ -38,26 +38,58 @@ class BlackjackGame:
             player.take_cards(self.deck.draw(2)) # Each player take two cards
             player.hand_value() # Compute the value of the hand
 
-    def check_blackjak(self):
+    def check_blackjack(self):
+        # Evaluate if any player have blackjack
+        for player in self.players:
+            if player.score == 21:
+                player.blackjack = True
+                print(f"{player.name} gets BLACKJACK!!")
+    
         # Evaluate if dealer has blackjack
         self.dealer.hand_value(1)
-        if self.dealer.score == 21:
-            print(
-                f"\nDealer hand: {self.dealer.hand}\n"
-                "The dealer gets BLACKJACK!!\n"
-            )
-            for player in self.players:
-                print(f"{player.name} lose the bet")
-            return True
-        
-        # Evaluate if any player have blackjack
+        if any(card in ["A", "J", "Q", "K"] for card in self.dealer.hand):
+            
+            # Peak rule
+            if self.dealer.hand[0] in ["J", "Q", "K"] and self.dealer.hand[1] == "A":
+                print(
+                    f"\nDealer hand: {self.dealer.hand}\n"
+                    "The dealer gets BLACKJACK!!\n"
+                )
+                for player in self.players:
+                    if player.blackjack == False:
+                        print(f"{player.name} lose the bet")
+                    else:
+                        player.bankroll += player.bet
+                        print(f"It's a push for {player.name}")
+                return True
+            
+            # Insurance
+            if self.dealer.hand[0] == "A":
+                print("\nDealer shows Ace. Insurance (y/n)?")
+                for player in self.players:
+                    insurance = input(f">> {player.name}: ")
+                    if insurance == "y":
+                        player.insurance = float(input(f"(max amount: ${player.bet / 2}) $"))
+                        player.bankroll -= player.insurance
+                    elif insurance == "n":
+                        pass
+                if self.dealer.hand[1] in ["J", "Q", "K"]:
+                    print(
+                        f"\nDealer hand: {self.dealer.hand}\n"
+                        "BLACKJACK!! - Insurance pays 2:1\n"
+                    )
+                    for player in self.players:
+                        player.bankroll += player.insurance * 2 # Insurance payout 2:1
+                    return True
+                
+            return False
+                
+        # Player wins if has blackjack and dealer doesn't
         else:
             for player in self.players:
-                if player.score == 21:
-                    player.blackjack = True
+                if player.blackjack == True:
                     player.wins += 1
                     player.bankroll += player.bet + (player.bet * 1.5) # Payout 3:2
-                    print(f"{player.name} gets BLACKJACK!! - pays 3:2\n")
             return False
 
     def compare_scores(self):
@@ -87,7 +119,7 @@ class BlackjackGame:
         for player in self.players:
             player.show_hand()
 
-        if self.check_blackjak():
+        if self.check_blackjack():
             return # Ends the game just if dealer has blackjack
 
         # Players turn
@@ -103,6 +135,7 @@ class BlackjackGame:
             if self.dealer.active == False:
                 for player in self.players:
                     if player.active == True:
+                        player.bankroll += player.bet * 2
                         player.wins += 1
             else:
                 self.compare_scores() # Victory conditions (if there was no bust)

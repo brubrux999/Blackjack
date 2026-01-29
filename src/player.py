@@ -3,6 +3,7 @@ class Player:
         self.name = name
         self.bankroll = bankroll # Total chips amount
         self.bet = 0 # Bet in each round
+        self.insurance = 0
         self.hand = []
         self.num_hand = [] # Numeric representation of the hand
         self.score = 0
@@ -12,6 +13,7 @@ class Player:
 
     def reset_hand(self):
         self.bet = 0
+        self.insurance = 0
         self.hand = []
         self.num_hand = []
         self.blackjack = False
@@ -20,8 +22,13 @@ class Player:
     def place_bet(self):
         while True:
             if self.bankroll <= 0:
-                print("Has no chips left")
-                return
+                buyin = input("Has no chips left. Buy-in (y/n)?: ")
+                if buyin == "y":
+                    amount = float(input("$"))
+                    self.bankroll = amount
+                elif buyin == "n":
+                    self.active = False
+                    return
             
             self.bet = float(input(f"Bet: $"))
             if self.bet <= 0:
@@ -39,18 +46,18 @@ class Player:
             return
 
     def hand_value(self):
-        As = 0 # Card counter "As"
+        Ace = 0 # Card counter "As"
         self.num_hand.clear()
 
         for card in self.hand:
-            if card == "As":
+            if card == "A":
                 As += 1
             elif card in ["J", "Q", "K"]:
                 self.num_hand.append(10)
             else:
                 self.num_hand.append(card)
         
-        for x in range(As): # 11 or 1 value for "As" (if there is)
+        for x in range(Ace): # 11 or 1 value for "As" (if there is)
             if sum(self.num_hand) + 11 <= 21:
                 self.num_hand.append(11)
             else:
@@ -105,7 +112,7 @@ class Dealer(Player):
 
         # Value of the first (visible) card
         if option == 0:
-            if self.hand[0] == "As":
+            if self.hand[0] == "A":
                 return 11
             elif self.hand[0] in ["J", "Q", "K"]:
                 return 10
@@ -115,7 +122,7 @@ class Dealer(Player):
         # Value of all cards
         if option == 1:
             for card in self.hand:
-                if card == "As":
+                if card == "A":
                     As += 1
                 elif card in ["J", "Q", "K"]:
                     self.num_hand.append(10)
