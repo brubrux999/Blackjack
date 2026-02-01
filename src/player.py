@@ -2,20 +2,18 @@ class Player:
     def __init__(self, name, bankroll):
         self.name = name
         self.bankroll = bankroll # Total chips amount
-        self.bet = 0 # Bet in each round
         self.insurance = 0
-        self.hand = []
-        self.num_hand = [] # Numeric representation of the hand
-        self.score = 0
+        self.hands = []
         self.blackjack = False # To know if the player has blackjack
         self.active = True # To know if the player is still in the game
         self.wins = 0 # Total wins of the player
 
-    def reset_hand(self):
-        self.bet = 0
+    def reset_values(self):
+        for hand in self.hands:
+            hand.cards.clear()
+            hand.bet = 0
+            hand.finished = False
         self.insurance = 0
-        self.hand = []
-        self.num_hand = []
         self.blackjack = False
         self.active = True
 
@@ -29,50 +27,27 @@ class Player:
                 elif buyin == "n":
                     self.active = False
                     return
-            
-            self.bet = float(input(f"Bet: $"))
-            if self.bet <= 0:
+                else:
+                    print("Invalid input")
+                    continue
+
+            self.hands[0].bet = float(input("Hand bet: $"))
+            if self.hands[0].bet <= 0:
                 print("Bet must be a positive amount")
                 continue
 
-            if self.bet > self.bankroll:
+            if self.hands[0].bet > self.bankroll:
                 print("You don't have enough chips")
                 continue
 
-            if self.bankroll - self.bet == 0:
+            if self.bankroll - self.hands[0].bet == 0:
                 print("ALL IN")
 
-            self.bankroll -= self.bet
+            self.bankroll -= self.hands[0].bet
             return
-
-    def hand_value(self):
-        Ace = 0 # Card counter "As"
-        self.num_hand.clear()
-
-        for card in self.hand:
-            if card == "A":
-                As += 1
-            elif card in ["J", "Q", "K"]:
-                self.num_hand.append(10)
-            else:
-                self.num_hand.append(card)
-        
-        for x in range(Ace): # 11 or 1 value for "As" (if there is)
-            if sum(self.num_hand) + 11 <= 21:
-                self.num_hand.append(11)
-            else:
-                self.num_hand.append(1)
-
-        self.score = sum(self.num_hand)
     
     def show_hand(self):
-        print(f">> {self.name} hand: {self.hand}, the score is {self.score}")
-
-    def take_cards(self, cards):
-        if isinstance(cards, list):
-            self.hand.extend(cards)
-        else:
-            self.hand.append(cards) # Add a card to player hand
+        print(f">> {self.name} hand: {self.hands[0]}")
 
     def play_turn(self, deck):
         if self.blackjack == False:
@@ -82,63 +57,33 @@ class Player:
                 hit_stand = input(f"Hit or Stand (h/s)? ")
                 if hit_stand == "h":
                     print(f"{self.name} hits\n")
-                    self.take_cards(deck.draw(1))
-                    self.hand_value()
+                    self.hands[0].take_cards(deck.draw(1))
+                    self.hands[0].value()
                     self.show_hand()
-                    if self.score > 21:
+                    if self.hands[0].score > 21:
                         self.active = False
                         print(f"{self.name} busts")
 
 class Dealer(Player):
-    def __init__(self):
+    def __init__(self, hand):
         super().__init__("Dealer", 0)
+        self.hand = hand
 
     def play_turn(self, deck):
         print("Dealer reveals the hole card...")
-        self.show_hand(1)
-        self.hand_value(1)
-        while self.score < 17:
+        print(self.hand(1))
+        self.hand.value(1)
+        while self.hand.score < 17:
             print("The dealer draws a card")
-            self.take_cards(deck.draw(1))
-            self.hand_value(1)
-            self.show_hand(1)
-            if self.score > 21:
+            self.hand.take_cards(deck.draw(1))
+            self.hand.value(1)
+            print(self.hand(1))
+            if self.hand.score > 21:
                 self.active = False
                 return print("The dealer busts\n")
             
-    def hand_value(self, option):
-        As = 0 # Card counter "As"
-        self.num_hand.clear()
-
-        # Value of the first (visible) card
-        if option == 0:
-            if self.hand[0] == "A":
-                return 11
-            elif self.hand[0] in ["J", "Q", "K"]:
-                return 10
-            else:
-                return self.hand[0]
-            
-        # Value of all cards
-        if option == 1:
-            for card in self.hand:
-                if card == "A":
-                    As += 1
-                elif card in ["J", "Q", "K"]:
-                    self.num_hand.append(10)
-                else:
-                    self.num_hand.append(card)
-        
-            for _ in range(As): # 11 or 1 value for "As" (if there is)
-                if sum(self.num_hand) + 11 <= 21:
-                    self.num_hand.append(11)
-                else:
-                    self.num_hand.append(1)
-
-            self.score = sum(self.num_hand)
-
     def show_hand(self, option):
         if option == 0:
-            print(f"\n>> Dealer hand: [{self.hand[0]}, ?], the score is {self.hand_value(0)}\n")
+            print(self.hand(0))
         if option == 1:
-            print(f"\n>> Dealer hand: {self.hand}, the score is {self.score}\n")
+            print(self.hand(1))
